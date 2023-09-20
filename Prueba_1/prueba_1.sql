@@ -29,5 +29,12 @@ CREATE TABLE empleados (
     userId int NOT NULL,
     sueldo double NOT NULL,
     fechaIngreso date NOT NULL,
-    FOREIGN KEY (userId) REFERENCES usuarios(userId) ON UPDATE CASCADE
+    FOREIGN KEY (userId) REFERENCES usuarios(userId) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Ya que no se menciona la forma en la que se deben cargar los datos, opte por facilitar la carga de datos
+-- Y modifique el archivo de informacion a .csv para poder subirse de forma mas sencilla
+-- Esto solo es una solucion temporal para esta prueba en especifico
+-- Se puede ya que en tengo la opcion de cargar archivos locales en el servidor de mysql
+LOAD DATA LOCAL INFILE 'C:/Users/rodri/Documents/Personal/Nuxiba/testdevbackjr/Prueba_1/usuarios.csv' INTO TABLE usuarios FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+LOAD DATA LOCAL INFILE 'C:/Users/rodri/Documents/Personal/Nuxiba/testdevbackjr/Prueba_1/empleados.csv' INTO TABLE empleados FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
