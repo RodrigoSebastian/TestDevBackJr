@@ -3,7 +3,10 @@ DELETE FROM usuarios WHERE usuarios.userId NOT IN (6,7,9,10);
 SELECT * FROM usuarios;
 
 -- Actualizar el dato Sueldo en un 10 porciento a los empleados que tienen fechas entre el año 2000 y 2001 (5 puntos)
-
+UPDATE empleados
+SET empleados.sueldo = empleados.sueldo * 1.1
+WHERE YEAR(empleados.fechaIngreso) BETWEEN 2000 AND 2001;
+SELECT * FROM empleados;
 
 -- Realiza una consulta para traer el nombre de usuario y fecha de ingreso de los usuarios que gananen mas de 10000 y su apellido comience con T ordernado del mas reciente al mas antiguo (10 puntos)
 
