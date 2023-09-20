@@ -14,3 +14,11 @@ WHERE em.sueldo > 10000 AND us.paterno LIKE 'T%'
 ORDER BY em.fechaIngreso DESC;
 
 -- Realiza una consulta donde agrupes a los empleados por sueldo, un grupo con los que ganan menos de 1200 y uno mayor o igual a 1200, cuantos hay en cada grupo? (10 puntos)
+SELECT
+CASE
+    WHEN sueldo < 1200 THEN 'Grupo menor 1200'
+    ELSE 'Grupo mayor o igual 1200'
+END AS Grupo,
+COUNT(*) AS Cantidad
+FROM empleados
+GROUP BY Grupo;
