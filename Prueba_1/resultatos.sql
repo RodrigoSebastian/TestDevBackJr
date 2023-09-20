@@ -9,5 +9,8 @@ WHERE YEAR(empleados.fechaIngreso) BETWEEN 2000 AND 2001;
 SELECT * FROM empleados;
 
 -- Realiza una consulta para traer el nombre de usuario y fecha de ingreso de los usuarios que gananen mas de 10000 y su apellido comience con T ordernado del mas reciente al mas antiguo (10 puntos)
+SELECT * FROM empleados AS em INNER JOIN usuarios AS us ON us.userId = em.userId
+WHERE em.sueldo > 10000 AND us.paterno LIKE 'T%'
+ORDER BY em.fechaIngreso DESC;
 
 -- Realiza una consulta donde agrupes a los empleados por sueldo, un grupo con los que ganan menos de 1200 y uno mayor o igual a 1200, cuantos hay en cada grupo? (10 puntos)
