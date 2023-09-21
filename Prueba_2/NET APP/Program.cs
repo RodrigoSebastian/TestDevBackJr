@@ -61,6 +61,8 @@ namespace Prueba2 {
             }
 
             reader.Close();
+         } catch (Exception ex) {
+            Console.WriteLine(ex.Message);
          } finally {
             pool.ReleaseConnecction(connection);
          }
@@ -93,6 +95,8 @@ namespace Prueba2 {
             File.WriteAllText("C:/Users/rodri/Documents/Personal/Nuxiba/testdevbackjr/Prueba_2/NET APP/info.csv", csv.ToString());
             reader.Close();
             Console.WriteLine("CSV generado");
+         } catch (Exception ex) {
+            Console.WriteLine(ex.Message);
          } finally {
             pool.ReleaseConnecction(connection);
          }
@@ -101,13 +105,14 @@ namespace Prueba2 {
       // Poder actualizar el salario del algun usuario especifico (10 puntos)
       private static void UpdateSalary(DatabaseConnectionPool pool)
       {
-         Console.Write("Ingresa el ID del usuario: ");
-         int userID = Convert.ToInt32(Console.ReadLine());
-         Console.Write("Ingresa el nuevo salario: ");
-         int newSalary = Convert.ToInt32(Console.ReadLine());
-
          MySqlConnection connection = pool.GetConnection();
          try {
+            Console.Write("Ingresa el ID del usuario: ");
+
+            int userID = Convert.ToInt32(Console.ReadLine());
+            Console.Write("Ingresa el nuevo salario: ");
+            int newSalary = Convert.ToInt32(Console.ReadLine());
+
             string query = "UPDATE empleados SET sueldo = @sueldo WHERE userID = @userID";
 
             MySqlCommand command = new MySqlCommand(query, connection);
@@ -121,6 +126,8 @@ namespace Prueba2 {
             } else {
                Console.WriteLine($"Usuario {userID}, no existe");
             }
+         } catch (Exception ex) {
+            Console.WriteLine(ex.Message);
          } finally {
             pool.ReleaseConnecction(connection);
          }
@@ -129,21 +136,21 @@ namespace Prueba2 {
       // Poder Tener una opcion para agregar un nuevo usuario y se pueda asiganar el salario y la fecha de ingreso por default el dia de hoy (25 puntos)
       private static void AddNewUser(DatabaseConnectionPool pool)
       {
-         Console.Write("Ingresa el login: ");
-         string login = Console.ReadLine() ?? "";
-         Console.Write("Ingresa el nombre: ");
-         string nombre = Console.ReadLine() ?? "";
-         Console.Write("Ingresa el paterno: ");
-         string paterno = Console.ReadLine() ?? "";
-         Console.Write("Ingresa el materno: ");
-         string materno = Console.ReadLine() ?? "";
-         Console.Write("Ingresa el nuevo salario: ");
-         int sueldo = Convert.ToInt32(Console.ReadLine());
-
          MySqlConnection connection = pool.GetConnection();
          MySqlTransaction transaction = connection.BeginTransaction();
 
          try {
+            Console.Write("Ingresa el login: ");
+            string login = Console.ReadLine() ?? "";
+            Console.Write("Ingresa el nombre: ");
+            string nombre = Console.ReadLine() ?? "";
+            Console.Write("Ingresa el paterno: ");
+            string paterno = Console.ReadLine() ?? "";
+            Console.Write("Ingresa el materno: ");
+            string materno = Console.ReadLine() ?? "";
+            Console.Write("Ingresa el nuevo salario: ");
+            int sueldo = Convert.ToInt32(Console.ReadLine());
+
             string query = "INSERT INTO usuarios (login, nombre, paterno, materno) VALUES (@login, @nombre, @paterno, @materno)";
             MySqlCommand command = new MySqlCommand(query, connection);
 
