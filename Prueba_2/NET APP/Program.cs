@@ -8,10 +8,42 @@ namespace Prueba2 {
       static void Main(string[] args) {
          DatabaseConnectionPool pool = new DatabaseConnectionPool("SERVER=localhost;DATABASE=nuxiba;USERNAME=root;PASSWORD=;", 5);
 
-         ListUsers(pool);
-         GenerateCSV(pool);
-         UpdateSalary(pool, 2, 1000);
-         AddNewUser(pool);
+         int opcion = 0;
+
+         while (opcion != 5) {
+            Console.WriteLine("Prueba Tecnica Nuxiba - Parte 2");
+            Console.WriteLine("Rodrigo Sebastian de la Rosa Andres");
+            Console.WriteLine();
+            Console.WriteLine("Comandos disponibles: ");
+            Console.WriteLine("1. Listar usuarios (Primeros 10)");
+            Console.WriteLine("2. Generar archivo CSV");
+            Console.WriteLine("3. Actualizar salario");
+            Console.WriteLine("4. Agregar nuevo usuario");
+            Console.WriteLine("5. SALIR");
+
+            Console.WriteLine();
+            Console.Write("Ingrese una opcion: ");
+            opcion = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine();
+
+            switch (opcion)
+            {
+               case 1: ListUsers(pool); break;
+               case 2: GenerateCSV(pool); break;
+               case 3: UpdateSalary(pool); break;
+               case 4: AddNewUser(pool); break;
+               case 5:
+                  Console.WriteLine("Adios");
+                  Environment.Exit(0); break;
+               default:            
+                  Console.WriteLine("Funcion no disponible");
+                  break;
+            }
+
+            Console.WriteLine("\nPresione ENTER para continuar");
+            Console.ReadLine();
+            Console.Clear();
+         }
       }
 
       // Listar top 10 usuarios de la base antes creada (10 puntos)
@@ -39,7 +71,7 @@ namespace Prueba2 {
       {
          MySqlConnection connection = pool.GetConnection();
          try {
-            Console.WriteLine("\nGerando CSV");
+            Console.WriteLine("Gerando CSV");
 
             string query = "SELECT * FROM usuarios AS us INNER JOIN empleados AS em ON us.userID = em.userID;";
             MySqlCommand command = new MySqlCommand(query, connection);
@@ -60,20 +92,25 @@ namespace Prueba2 {
             }
             File.WriteAllText("C:/Users/rodri/Documents/Personal/Nuxiba/testdevbackjr/Prueba_2/NET APP/info.csv", csv.ToString());
             reader.Close();
-            Console.WriteLine("CSV generado\n");
+            Console.WriteLine("CSV generado");
          } finally {
             pool.ReleaseConnecction(connection);
          }
       }
 
       // Poder actualizar el salario del algun usuario especifico (10 puntos)
-      private static void UpdateSalary(DatabaseConnectionPool pool, decimal newSalary, int userID)
+      private static void UpdateSalary(DatabaseConnectionPool pool)
       {
+         Console.Write("Ingresa el ID del usuario: ");
+         int userID = Convert.ToInt32(Console.ReadLine());
+         Console.Write("Ingresa el nuevo salario: ");
+         int newSalary = Convert.ToInt32(Console.ReadLine());
+
          MySqlConnection connection = pool.GetConnection();
          try {
             string query = "UPDATE empleados SET sueldo = @sueldo WHERE userID = @userID";
-            MySqlCommand command = new MySqlCommand(query, connection);
 
+            MySqlCommand command = new MySqlCommand(query, connection);
             // Evitar SQL Injection
             command.Parameters.AddWithValue("@sueldo", newSalary);
             command.Parameters.AddWithValue("@userID", userID);
@@ -92,16 +129,28 @@ namespace Prueba2 {
       // Poder Tener una opcion para agregar un nuevo usuario y se pueda asiganar el salario y la fecha de ingreso por default el dia de hoy (25 puntos)
       private static void AddNewUser(DatabaseConnectionPool pool)
       {
+         Console.Write("Ingresa el login: ");
+         string login = Console.ReadLine() ?? "";
+         Console.Write("Ingresa el nombre: ");
+         string nombre = Console.ReadLine() ?? "";
+         Console.Write("Ingresa el paterno: ");
+         string paterno = Console.ReadLine() ?? "";
+         Console.Write("Ingresa el materno: ");
+         string materno = Console.ReadLine() ?? "";
+         Console.Write("Ingresa el nuevo salario: ");
+         int sueldo = Convert.ToInt32(Console.ReadLine());
+
          MySqlConnection connection = pool.GetConnection();
          MySqlTransaction transaction = connection.BeginTransaction();
 
          try {
             string query = "INSERT INTO usuarios (login, nombre, paterno, materno) VALUES (@login, @nombre, @paterno, @materno)";
             MySqlCommand command = new MySqlCommand(query, connection);
-            command.Parameters.AddWithValue("@login", Console.ReadLine());
-            command.Parameters.AddWithValue("@nombre", Console.ReadLine());
-            command.Parameters.AddWithValue("@paterno", Console.ReadLine());
-            command.Parameters.AddWithValue("@materno", Console.ReadLine());
+
+            command.Parameters.AddWithValue("@login", login);
+            command.Parameters.AddWithValue("@nombre", nombre);
+            command.Parameters.AddWithValue("@paterno", paterno);
+            command.Parameters.AddWithValue("@materno", materno);
 
             int rowsAffected = command.ExecuteNonQuery();
 
@@ -117,7 +166,7 @@ namespace Prueba2 {
             command.Parameters.Clear();
             command.CommandText = query;
             command.Parameters.AddWithValue("@userId", userId);
-            command.Parameters.AddWithValue("@sueldo", Console.ReadLine());
+            command.Parameters.AddWithValue("@sueldo", sueldo);
             command.Parameters.AddWithValue("@fechaIngreso", DateTime.Now);
 
             rowsAffected = command.ExecuteNonQuery();
@@ -127,7 +176,7 @@ namespace Prueba2 {
             }
 
             transaction.Commit();
-            Console.WriteLine("Usuario agregado correctamente");
+            Console.WriteLine("\nUsuario agregado correctamente");
          } catch (Exception ex) {
             transaction.Rollback();
             Console.WriteLine(ex.Message);
