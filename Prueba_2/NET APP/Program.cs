@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using MySql.Data.MySqlClient;
+using ZstdSharp.Unsafe;
 
 namespace Prueba2 {
    class Program {
@@ -10,6 +11,7 @@ namespace Prueba2 {
          ListUsers(pool);
          GenerateCSV(pool);
          UpdateSalary(pool, 2, 1000);
+         AddNewUser(pool);
       }
 
       // Listar top 10 usuarios de la base antes creada (10 puntos)
@@ -69,9 +71,11 @@ namespace Prueba2 {
       {
          MySqlConnection connection = pool.GetConnection();
          try {
-            string query = "UPDATE empleados SET sueldo = @salary WHERE userID = @userID";
+            string query = "UPDATE empleados SET sueldo = @sueldo WHERE userID = @userID";
             MySqlCommand command = new MySqlCommand(query, connection);
-            command.Parameters.AddWithValue("@salary", newSalary);
+
+            // Evitar SQL Injection
+            command.Parameters.AddWithValue("@sueldo", newSalary);
             command.Parameters.AddWithValue("@userID", userID);
             int rowsAffected = command.ExecuteNonQuery();
 
@@ -86,5 +90,51 @@ namespace Prueba2 {
       }
 
       // Poder Tener una opcion para agregar un nuevo usuario y se pueda asiganar el salario y la fecha de ingreso por default el dia de hoy (25 puntos)
+      private static void AddNewUser(DatabaseConnectionPool pool)
+      {
+         MySqlConnection connection = pool.GetConnection();
+         MySqlTransaction transaction = connection.BeginTransaction();
+
+         try {
+            string query = "INSERT INTO usuarios (login, nombre, paterno, materno) VALUES (@login, @nombre, @paterno, @materno)";
+            MySqlCommand command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@login", Console.ReadLine());
+            command.Parameters.AddWithValue("@nombre", Console.ReadLine());
+            command.Parameters.AddWithValue("@paterno", Console.ReadLine());
+            command.Parameters.AddWithValue("@materno", Console.ReadLine());
+
+            int rowsAffected = command.ExecuteNonQuery();
+
+            // Guard Clause
+            if (rowsAffected <= 0) {
+               throw new Exception("No se pudo insertar en la tabla usuarios");
+            }
+
+            long userId = command.LastInsertedId;
+
+            query = "INSERT INTO empleados (userId, sueldo, fechaIngreso) VALUES (@userId, @sueldo, @fechaIngreso)";
+
+            command.Parameters.Clear();
+            command.CommandText = query;
+            command.Parameters.AddWithValue("@userId", userId);
+            command.Parameters.AddWithValue("@sueldo", Console.ReadLine());
+            command.Parameters.AddWithValue("@fechaIngreso", DateTime.Now);
+
+            rowsAffected = command.ExecuteNonQuery();
+
+            if (rowsAffected <= 0) {
+               throw new Exception("No se pudo insertar en la tabla empleados");
+            }
+
+            transaction.Commit();
+            Console.WriteLine("Usuario agregado correctamente");
+         } catch (Exception ex) {
+            transaction.Rollback();
+            Console.WriteLine(ex.Message);
+         } finally {
+            transaction.Dispose();
+            pool.ReleaseConnecction(connection);
+         }
+      }
    }
 }
