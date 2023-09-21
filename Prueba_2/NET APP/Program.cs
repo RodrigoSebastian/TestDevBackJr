@@ -9,6 +9,7 @@ namespace Prueba2 {
 
          ListUsers(pool);
          GenerateCSV(pool);
+         UpdateSalary(pool, 2, 1000);
       }
 
       // Listar top 10 usuarios de la base antes creada (10 puntos)
@@ -57,14 +58,33 @@ namespace Prueba2 {
             }
             File.WriteAllText("C:/Users/rodri/Documents/Personal/Nuxiba/testdevbackjr/Prueba_2/NET APP/info.csv", csv.ToString());
             reader.Close();
-            Console.WriteLine("CSV generado");
+            Console.WriteLine("CSV generado\n");
          } finally {
             pool.ReleaseConnecction(connection);
          }
       }
 
       // Poder actualizar el salario del algun usuario especifico (10 puntos)
+      private static void UpdateSalary(DatabaseConnectionPool pool, decimal newSalary, int userID)
+      {
+         MySqlConnection connection = pool.GetConnection();
+         try {
+            string query = "UPDATE empleados SET sueldo = @salary WHERE userID = @userID";
+            MySqlCommand command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@salary", newSalary);
+            command.Parameters.AddWithValue("@userID", userID);
+            int rowsAffected = command.ExecuteNonQuery();
+
+            if (rowsAffected > 0) {
+               Console.WriteLine($"Usuario {userID}, actualizado correctamente");
+            } else {
+               Console.WriteLine($"Usuario {userID}, no existe");
+            }
+         } finally {
+            pool.ReleaseConnecction(connection);
+         }
+      }
+
       // Poder Tener una opcion para agregar un nuevo usuario y se pueda asiganar el salario y la fecha de ingreso por default el dia de hoy (25 puntos)
-      // PLUS: Si conoces algún patrón de diseño de software no dudes en usarlo (+ 10 puntos)
    }
 }

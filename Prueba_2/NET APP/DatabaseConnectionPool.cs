@@ -1,5 +1,6 @@
 using MySql.Data.MySqlClient;
 
+// PLUS: Si conoces algún patrón de diseño de software no dudes en usarlo (+ 10 puntos)
 // Se implemento el patron de diseño Object Pooling, para tener un mejor control de la cantidad sobre
 // la cantidad de conexiones que se pueden realizar a la base de datos  -> Enfoque multihilo
 // Tambien podria implementarse SINGLETON para tener una sola instancia de la conexion a la base de datos -> Enfoque solo un hilo
